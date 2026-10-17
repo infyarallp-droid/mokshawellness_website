@@ -1,12 +1,21 @@
 import Image from 'next/image';
 import { site } from '@/content/site';
+import logoFull from '@/assets/brand/logo.png';
+import logoFullWhite from '@/assets/brand/logo-white.png';
+import logoMark from '@/assets/brand/logo-mark.png';
+import logoMarkWhite from '@/assets/brand/logo-mark-white.png';
 
-const MARK = { src: '/logo-mark.png', width: 535, height: 476 };
+// Logo files live in src/assets/brand (generated from the official logo, ESTD 2025) and are
+// imported, so every version gets a content-hashed URL and no cache can ever show an old logo.
+//   logo.png / logo-white.png            full stacked logo (colour / for dark backgrounds)  1200×1099
+//   logo-mark.png / logo-mark-white.png  lotus mark only                                    640×563
+// Copies in /public (logo.png, logo-mark.png) are only for external use: search engines, Razorpay.
+const MARK = { src: logoMark, white: logoMarkWhite };
+const FULL = { src: logoFull, white: logoFullWhite };
 
 /**
- * The lotus-and-figure mark from the logo, drawn in the current text colour
- * (the logo file is used as a mask). For watermarks and decoration; use
- * <LogoMark /> where the real two-colour mark should show.
+ * The lotus mark drawn in the current text colour (the logo file is used as a
+ * mask). For watermarks and decoration; use <LogoMark /> for the real mark.
  */
 export function LotusMark({ className = '' }: { className?: string }) {
   return (
@@ -14,8 +23,8 @@ export function LotusMark({ className = '' }: { className?: string }) {
       aria-hidden="true"
       className={`inline-block bg-current ${className}`}
       style={{
-        maskImage: `url(${MARK.src})`,
-        WebkitMaskImage: `url(${MARK.src})`,
+        maskImage: `url(${MARK.src.src})`,
+        WebkitMaskImage: `url(${MARK.src.src})`,
         maskSize: 'contain',
         WebkitMaskSize: 'contain',
         maskRepeat: 'no-repeat',
@@ -27,28 +36,44 @@ export function LotusMark({ className = '' }: { className?: string }) {
   );
 }
 
-/** The mark in its real colours (green lotus, maroon bindu). */
-export function LogoMark({ className = '', priority = false }: { className?: string; priority?: boolean }) {
-  return <Image src={MARK.src} alt="" width={MARK.width} height={MARK.height} priority={priority} className={className} />;
+/** The mark in its real colours (green lotus, red bindu), or white for dark backgrounds. */
+export function LogoMark({ className = '', priority = false, tone = 'colour' }: { className?: string; priority?: boolean; tone?: 'colour' | 'white' }) {
+  return (
+    <Image
+      src={tone === 'white' ? MARK.white : MARK.src}
+      alt=""
+      priority={priority}
+      sizes="(max-width: 640px) 120px, 240px"
+      className={className}
+    />
+  );
 }
 
 /** Full stacked logo, for places with room for it. */
-export function FullLogo({ className = '' }: { className?: string }) {
-  return <Image src="/logo.png" alt={`${site.name} — ${site.tagline}`} width={818} height={878} className={className} />;
+export function FullLogo({ className = '', tone = 'colour', priority = false }: { className?: string; tone?: 'colour' | 'white'; priority?: boolean }) {
+  return (
+    <Image
+      src={tone === 'white' ? FULL.white : FULL.src}
+      alt={`${site.name} — established 2025`}
+      priority={priority}
+      sizes="(max-width: 640px) 60vw, 320px"
+      className={className}
+    />
+  );
 }
 
 /** Horizontal lockup for the header and footer: the mark beside the name. */
 export default function Logo({ tone = 'dark' }: { tone?: 'dark' | 'light' }) {
   const light = tone === 'light';
   return (
-    <span className={`flex items-center gap-3 ${light ? 'text-cream' : 'text-forest'}`}>
-      {light ? <LotusMark className="h-11 w-12" /> : <LogoMark priority className="h-11 w-auto" />}
+    <span className={`flex items-center gap-2.5 ${light ? 'text-cream' : 'text-forest'}`}>
+      <LogoMark priority={!light} tone={light ? 'white' : 'colour'} className="h-11 w-auto" />
       <span className="leading-none">
         <span className="block font-display text-[1.35rem] font-semibold uppercase tracking-[0.06em]">Moksha</span>
         <span className="mt-1 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.3em]">
-          <span className={`h-px w-3 ${light ? 'bg-cream/50' : 'bg-clay'}`} />
+          <span className={`h-px w-3 ${light ? 'bg-cream/50' : 'bg-bindu'}`} />
           Wellness
-          <span className={`h-px w-3 ${light ? 'bg-cream/50' : 'bg-clay'}`} />
+          <span className={`h-px w-3 ${light ? 'bg-cream/50' : 'bg-bindu'}`} />
         </span>
       </span>
     </span>

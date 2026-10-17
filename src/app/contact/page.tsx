@@ -1,8 +1,7 @@
 import type { Metadata } from 'next';
 import EnquiryForm from '@/components/EnquiryForm';
-import { PageHero } from '@/components/ui';
-import { allProgrammes } from '@/content/programmes';
-import { site, whatsappLink } from '@/content/site';
+import { Faq, PageHero } from '@/components/ui';
+import { getSite, whatsappHref } from '@/lib/content';
 
 export const metadata: Metadata = {
   title: 'Contact & Enquiries',
@@ -12,39 +11,41 @@ export const metadata: Metadata = {
 
 export default async function ContactPage({ searchParams }: { searchParams: Promise<{ interest?: string | string[] }> }) {
   const { interest } = await searchParams;
-  const slug = typeof interest === 'string' && allProgrammes.some((p) => p.slug === interest) ? interest : '';
-  const { contact } = site;
-  const wa = whatsappLink();
+  const s = await getSite();
+  const page = s.block('contact.page');
+  const contact = s.block('site.settings');
+  const programmes = s.programmes.map((p) => ({ slug: p.slug, name: p.name, mode: p.mode, category: p.category }));
+  const slug = typeof interest === 'string' && programmes.some((p) => p.slug === interest) ? interest : '';
+  const wa = whatsappHref(contact.whatsapp);
   const details = [
     contact.phone && { label: 'Call', value: contact.phone, href: `tel:${contact.phone.replace(/[^\d+]/g, '')}` },
     wa && { label: 'WhatsApp', value: 'Message us on WhatsApp', href: wa },
     contact.email && { label: 'Email', value: contact.email, href: `mailto:${contact.email}` },
   ].filter(Boolean) as { label: string; value: string; href: string }[];
+  const faqs = s.faqs('CONTACT');
 
   return (
     <>
-      <PageHero eyebrow="Contact" title="Let us find the right class for you">
-        <p>Tell us what you would like to practise. We will reply with the class that fits, its timings and the plan options.</p>
+      <PageHero eyebrow={page.heroEyebrow} title={page.heroTitle}>
+        {page.heroBody && <p>{page.heroBody}</p>}
       </PageHero>
 
       <section id="enquire" className="container-page grid scroll-mt-24 gap-12 pb-20 sm:pb-28 lg:grid-cols-[1.25fr_0.75fr]">
-        <EnquiryForm key={slug} initialInterest={slug} />
+        <EnquiryForm key={slug} initialInterest={slug} programmes={programmes} />
 
         <aside className="space-y-8 lg:pt-4">
-          <div>
-            <h2 className="text-2xl font-medium">What happens next</h2>
-            <ol className="mt-4 space-y-3 text-ink/75">
-              <li>
-                <span className="font-semibold text-forest">1.</span> Your enquiry reaches the studio team straight away.
-              </li>
-              <li>
-                <span className="font-semibold text-forest">2.</span> We reply on the mobile number you share.
-              </li>
-              <li>
-                <span className="font-semibold text-forest">3.</span> You choose a class and plan, and begin.
-              </li>
-            </ol>
-          </div>
+          {page.nextSteps.length > 0 && (
+            <div>
+              <h2 className="text-2xl font-medium">What happens next</h2>
+              <ol className="mt-4 space-y-3 text-ink/75">
+                {page.nextSteps.map((step, i) => (
+                  <li key={i}>
+                    <span className="font-semibold text-forest">{i + 1}.</span> {step}
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
 
           {details.length > 0 && (
             <div>
@@ -53,7 +54,7 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
                 {details.map((d) => (
                   <li key={d.label}>
                     <span className="block text-xs font-semibold uppercase tracking-[0.2em] text-ink/50">{d.label}</span>
-                    <a href={d.href} className="text-lg text-forest underline decoration-forest/25 underline-offset-4 hover:decoration-forest">
+                    <a href={d.href} className="break-all text-lg text-forest underline decoration-forest/25 underline-offset-4 hover:decoration-forest">
                       {d.value}
                     </a>
                   </li>
@@ -97,6 +98,12 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
           )}
         </aside>
       </section>
+
+      {faqs.length > 0 && (
+        <section className="container-page pb-20">
+          <Faq items={faqs.map((f) => ({ q: f.question, a: f.answer }))} />
+        </section>
+      )}
     </>
   );
 }

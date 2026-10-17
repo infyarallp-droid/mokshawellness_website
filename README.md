@@ -1,16 +1,52 @@
 # Moksha Wellness — Website
 
-Public website for Moksha Wellness (Yoga & Pilates). Next.js (App Router) + TypeScript + Tailwind.
-Enquiries from the site arrive in the **Leads** inbox of the Moksha admin panel.
+Public website for Moksha Wellness (Yoga & Pilates): Next.js 16 (App Router) + TypeScript + Tailwind.
+Content, student accounts, online payments and enquiries are powered by the Moksha **admin panel**
+API (separate repo `infyara_admin_panel`) — this site holds no database and no secrets in the browser.
+
+## What the studio manages without code
+
+Everything below is edited in the admin panel and appears on the site within seconds of publishing
+(cached pages are refreshed on demand; they also refresh every 5 minutes on their own):
+
+| Website | Admin panel |
+|---|---|
+| Page text (home, about, classes, training, contact, team/stories/gallery headings) | Website → Page Content |
+| Contact details, WhatsApp button, opening hours, social links, footer note | Page Content → Contact details & footer |
+| Class and training cards, online plans with prices | Website → Programmes (from the course catalogue) |
+| Team page | Website → Team |
+| Student stories (video + written) | Website → Testimonials |
+| FAQs (per page) | Website → FAQs |
+| Announcement banner | Website → Announcements |
+| Gallery page | Website → Gallery & Media |
+| Privacy, terms, refund policy pages | Page Content → policy sections (shown once published) |
+
+If the admin API cannot be reached, the site falls back to its built-in copy
+(`src/content/defaults.ts`) so pages never break. Team, Stories, Gallery and policy pages appear in
+the menu/footer only when they have published content.
+
+## Student accounts and payments
+
+- `/signup`, `/login`: **mobile number or email** + password, or **Continue with Google**. A mobile number is mandatory for every account, whichever way it is created; emails are unique and case-insensitive.
+- `/account`: classes, invoices (PDF), payments and receipts (PDF), online payments, plans to join online. `/account/settings`: profile, password, WhatsApp opt-in, connect Google, sign out other devices.
+- `/checkout`: Razorpay Checkout for an invoice balance or an online plan; `/payment/[id]`: confirmation (waits for the server's verification).
+- New accounts appear on the admin **Website Logins** page, where staff link them to the student record.
+
+How it is secured: the browser only talks to this site's `/api/*` routes; those call the admin API
+with a server-only service key. The session is an httpOnly, SameSite=Lax cookie; state-changing
+routes also check the request comes from this site. Payment amounts are set by the API, and a payment
+counts only after the API verifies it with Razorpay. See `next.config.ts` for the Content Security
+Policy and security headers.
 
 ## Run locally
 
-Requires Node 20+ and pnpm 9+.
+Requires Node 20+, pnpm 9+, and the admin API running (see the admin repo's DEPLOYMENT.md →
+*Local development*).
 
 ```bash
 pnpm install
-cp .env.example .env.local     # then fill in the values (see below)
-pnpm dev                       # http://localhost:3000   (use `pnpm dev -p 3100` if 3000 is busy)
+cp .env.example .env.local     # fill in (see below)
+pnpm dev                       # http://localhost:3000
 ```
 
 | Command | What it does |
@@ -18,56 +54,34 @@ pnpm dev                       # http://localhost:3000   (use `pnpm dev -p 3100`
 | `pnpm dev` | Development server |
 | `pnpm build` / `pnpm start` | Production build / serve it |
 | `pnpm lint` · `pnpm typecheck` | Code checks |
+| `pnpm test:e2e` | Browser journeys — see [docs/TESTING.md](docs/TESTING.md) |
 
-## What to edit
+## Environment variables
 
-| To change… | Edit |
-|---|---|
-| Phone, WhatsApp, email, address, map link, hours, social links, logo | `src/content/site.ts` |
-| Classes and training programmes | `src/content/programmes.ts` |
-| Colours | the `:root` variables in `src/app/globals.css` |
-| Home-page copy and FAQs | `src/app/page.tsx` |
-
-**Contact details.** Phone and email are filled in; the written address, WhatsApp number, opening hours and social links are still empty. Each one appears on the site as soon as it is filled in (phone link,
-floating WhatsApp button, address, map link, opening hours, social links) and stays hidden while empty.
-Nothing on the site is invented: there are no fees, timings, addresses, testimonials or trainer
-biographies until the studio supplies them.
-
-**Logo.** `public/logo.png` is the full stacked logo and `public/logo-mark.png` is the lotus mark cut
-from it (used in the header, hero and as a watermark). The favicon is `src/app/icon.png`. To change the
-logo, replace those files keeping the same names.
-
-**Programmes** mirror the course catalogue in the admin panel (same names and delivery modes). If a
-course is added or renamed there, update `programmes.ts` to match.
-
-## Enquiry form → admin panel
-
-```
-Browser form ──POST /api/enquiry──▶ this site (server) ──POST /api/public/leads + x-api-key──▶ admin API ──▶ Leads inbox
-```
-
-The API key is used only on the server (`src/app/api/enquiry/route.ts`), so it never reaches the browser.
-The route validates the input, drops bot submissions (hidden honeypot field), applies a light per-IP limit,
-and reports honestly when the enquiry could not be saved.
-
-Environment variables (`.env.local` locally, Project → Settings → Environment Variables on Vercel):
+`.env.local` locally; Vercel → Project → Settings → Environment Variables in production.
+All are server-only except `NEXT_PUBLIC_SITE_URL`.
 
 | Variable | Value |
 |---|---|
-| `NEXT_PUBLIC_SITE_URL` | Public address of this site, e.g. `https://www.mokshawellness.in` |
-| `ADMIN_API_URL` | Admin API base URL, e.g. `https://moksha-api-b5pt.onrender.com` |
-| `PUBLIC_LEADS_API_KEY` | Same value as `PUBLIC_LEADS_API_KEY` on the admin API (Render) |
+| `NEXT_PUBLIC_SITE_URL` | Public address, e.g. `https://www.mokshawellness.in` |
+| `ADMIN_API_URL` | Admin API base URL |
+| `PUBLIC_LEADS_API_KEY` | = `PUBLIC_LEADS_API_KEY` on the API (enquiry form → Leads) |
+| `WEBSITE_SERVICE_KEY` | = `WEBSITE_SERVICE_KEY` on the API (accounts, payments, previews) |
+| `REVALIDATE_SECRET` | = `WEBSITE_REVALIDATE_SECRET` on the API (instant refresh after publishing) |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | Optional — Google sign-in (admin repo: docs/SETUP_GOOGLE_AUTH.md) |
 
-If the two admin variables are missing, the form tells the visitor that online enquiries are not switched
-on yet — it never pretends to have saved anything.
+## Logo
 
-The admin API runs on a free tier that sleeps when idle, so the first enquiry after a quiet period can take
-up to a minute. The route waits for it.
+Generated from the official logo (ESTD 2025, supplied as a high-resolution image) without altering
+the artwork: `public/logo.png` (full), `public/logo-white.png`, `public/logo-mark.png` (lotus mark),
+`public/logo-mark-white.png`, plus `src/app/icon.png`, `apple-icon.png`, `opengraph-image.png` and
+the manifest icons. Brand colours (`src/app/globals.css`): lotus green `#093a18`, bindu maroon `#82171c`.
 
 ## Deploy (Vercel)
 
-1. Push this repository to GitHub.
-2. Vercel → **Add New → Project** → import the repository (framework is detected as Next.js).
-3. Add the three environment variables above.
-4. Deploy, then send one test enquiry and check it appears under **Leads** in the admin panel.
-5. Optional: add the custom domain in Vercel and update `NEXT_PUBLIC_SITE_URL` to match.
+1. Import the repository (framework: Next.js).
+2. Set the environment variables above.
+3. Deploy, then follow the admin repo's DEPLOYMENT.md → *Verify in production*.
+4. Custom domain: add it in Vercel and update `NEXT_PUBLIC_SITE_URL`, the API's `WEBSITE_URL`, and the Google OAuth redirect URI.
+
+Planning notes and the original audit: [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md).

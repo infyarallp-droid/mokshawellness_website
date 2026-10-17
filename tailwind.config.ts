@@ -14,6 +14,7 @@ const config: Config = {
         forest: 'rgb(var(--forest) / <alpha-value>)',
         brand: 'rgb(var(--brand) / <alpha-value>)',
         clay: 'rgb(var(--clay) / <alpha-value>)',
+        bindu: 'rgb(var(--bindu) / <alpha-value>)',
       },
       fontFamily: {
         display: ['var(--font-display)', 'Georgia', 'serif'],

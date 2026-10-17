@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { enquirySchema, normalizeMobile } from '@/content/enquiry';
-import { allProgrammes } from '@/content/programmes';
+import { getSite } from '@/lib/content';
 
 // Website enquiry → Moksha admin panel "Leads" inbox.
 //
@@ -66,7 +66,8 @@ export async function POST(request: Request) {
     return fail(503, 'Online enquiries are not switched on yet. Please contact the studio directly.');
   }
 
-  const programme = allProgrammes.find((p) => p.slug === input.interest);
+  const programme = input.interest ? (await getSite()).programmes.find((p) => p.slug === input.interest) : undefined;
+  if (input.interest && !programme) return fail(400, 'Please check the highlighted fields.', { interest: 'Choose a class from the list' });
   const message = [
     programme ? `Interested in: ${programme.name}` : null,
     input.mode !== 'No preference' ? `Preferred format: ${input.mode}` : null,
