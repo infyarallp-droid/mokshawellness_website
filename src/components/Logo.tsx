@@ -62,20 +62,8 @@ export function FullLogo({ className = '', tone = 'colour', priority = false }: 
   );
 }
 
-/** Horizontal lockup for the header and footer: the mark beside the name. */
-export default function Logo({ tone = 'dark' }: { tone?: 'dark' | 'light' }) {
+/** The official logo artwork for the header (colour) and footer (white). */
+export default function Logo({ tone = 'dark', className = 'h-16 w-auto sm:h-[4.75rem]' }: { tone?: 'dark' | 'light'; className?: string }) {
   const light = tone === 'light';
-  return (
-    <span className={`flex items-center gap-2.5 ${light ? 'text-cream' : 'text-forest'}`}>
-      <LogoMark priority={!light} tone={light ? 'white' : 'colour'} className="h-11 w-auto" />
-      <span className="leading-none">
-        <span className="block font-display text-[1.35rem] font-semibold uppercase tracking-[0.06em]">Moksha</span>
-        <span className="mt-1 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.3em]">
-          <span className={`h-px w-3 ${light ? 'bg-cream/50' : 'bg-bindu'}`} />
-          Wellness
-          <span className={`h-px w-3 ${light ? 'bg-cream/50' : 'bg-bindu'}`} />
-        </span>
-      </span>
-    </span>
-  );
+  return <FullLogo tone={light ? 'white' : 'colour'} priority={!light} className={className} />;
 }
