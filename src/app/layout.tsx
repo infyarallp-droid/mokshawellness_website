@@ -4,7 +4,8 @@ import type { ReactNode } from 'react';
 import AnnouncementBar from '@/components/AnnouncementBar';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
-import { PreviewBanner, WhatsAppButton } from '@/components/ui';
+import ContactButtons from '@/components/ContactButtons';
+import { PreviewBanner } from '@/components/ui';
 import { buildNav, site } from '@/content/site';
 import { getSite, whatsappHref } from '@/lib/content';
 import './globals.css';
@@ -45,7 +46,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   ].filter(Boolean) as { href: string; label: string }[];
 
   // Structured data for search engines. Only facts that are filled in are published.
-  const sameAs = [settings.instagram, settings.facebook, settings.youtube].filter(Boolean);
+  const sameAs = [settings.instagram, settings.facebook, settings.youtube, settings.website].filter(Boolean);
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'ExerciseGym',
@@ -72,7 +73,16 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
           {children}
         </main>
         <Footer settings={settings} nav={nav} policies={policies} />
-        <WhatsAppButton href={whatsappHref(settings.whatsapp)} />
+        <ContactButtons
+          links={{
+            whatsapp: whatsappHref(settings.whatsapp),
+            instagram: settings.instagram,
+            facebook: settings.facebook,
+            youtube: settings.youtube,
+            google: settings.mapsUrl,
+            website: settings.website,
+          }}
+        />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
       </body>
     </html>

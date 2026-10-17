@@ -1,23 +1,27 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import type { Programme } from '@/content/programmes';
 import { site } from '@/content/site';
 import { rupees, type OnlinePlan } from '@/lib/content';
-import { LogoMark, LotusMark } from './Logo';
+import { LotusMark } from './Logo';
+import heroLogo from '@/assets/brand/logo-yoga-pilates.png';
 import Reveal from './Reveal';
 
-/** Layered sunrise + lotus illustration used in the hero. Pure SVG, no image files. */
+/** Layered sunrise circles with the Moksha Wellness "Yoga & Pilates" logo, used in the home hero. */
 export function HeroArt() {
   return (
     <div aria-hidden="true" className="relative mx-auto aspect-square w-full max-w-[30rem]">
       <div className="absolute inset-[6%] animate-breathe rounded-full bg-gradient-to-b from-sand to-sage" />
       <div className="absolute inset-[18%] animate-breathe rounded-full bg-gradient-to-b from-clay/15 to-brand/20 [animation-delay:-3s]" />
-      <div className="absolute inset-[31%] rounded-full bg-cream/80 shadow-[0_30px_80px_-20px_rgb(var(--forest)/0.35)]" />
+      <div className="absolute inset-[22%] rounded-full bg-cream/90 shadow-[0_30px_80px_-20px_rgb(var(--forest)/0.35)]" />
       <svg viewBox="0 0 400 400" className="absolute inset-0 h-full w-full text-forest/15" fill="none" stroke="currentColor">
         <circle cx="200" cy="200" r="196" strokeDasharray="2 10" strokeWidth="1.5" />
         <circle cx="200" cy="200" r="150" strokeWidth="1" />
       </svg>
-      <LogoMark priority className="absolute inset-x-[34%] top-[35%] h-auto w-[32%] animate-drift" />
+      <div className="absolute inset-0 grid place-items-center">
+        <Image src={heroLogo} alt="" priority sizes="(max-width: 1024px) 45vw, 220px" className="h-auto w-[44%] animate-drift" />
+      </div>
     </div>
   );
 }
@@ -157,20 +161,3 @@ export function PreviewBanner() {
   );
 }
 
-/** Floating WhatsApp shortcut — rendered only when a WhatsApp number is set in the admin panel. */
-export function WhatsAppButton({ href }: { href: string | null }) {
-  if (!href) return null;
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label={`Chat with ${site.name} on WhatsApp`}
-      className="fixed bottom-5 right-5 z-40 grid h-14 w-14 place-items-center rounded-full bg-[#1fa855] text-white shadow-lg transition hover:scale-105"
-    >
-      <svg viewBox="0 0 24 24" className="h-7 w-7" fill="currentColor" aria-hidden="true">
-        <path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.700 6.700 0 0 1-3.300-2.900c-.3-.4.300-.400.700-1.300.100-.200 0-.300 0-.500l-.800-1.900c-.200-.500-.400-.400-.600-.400h-.500a1 1 0 0 0-.700.300 3 3 0 0 0-.900 2.200c0 1.300.900 2.500 1.100 2.700.1.200 1.900 2.900 4.600 4 1.700.700 2.400.800 3.200.600.500-.100 1.500-.600 1.700-1.200.200-.600.200-1.100.200-1.200-.100-.100-.300-.200-.500-.300Z" />
-      </svg>
-    </a>
-  );
-}

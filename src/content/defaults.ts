@@ -23,6 +23,8 @@ export interface Blocks {
     instagram: string;
     facebook: string;
     youtube: string;
+    /** Another website of the studio (optional). */
+    website: string;
     footerNote: string;
   };
   'home.hero': {
@@ -115,6 +117,7 @@ export const DEFAULT_BLOCKS: Blocks = {
     instagram: '',
     facebook: '',
     youtube: '',
+    website: '',
     footerNote: 'Practise within your own limits. Yoga and Pilates are not a substitute for medical advice.',
   },
   'home.hero': {

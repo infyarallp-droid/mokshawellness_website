@@ -17,6 +17,7 @@ export default function Footer({
     { label: 'Instagram', href: settings.instagram },
     { label: 'Facebook', href: settings.facebook },
     { label: 'YouTube', href: settings.youtube },
+    { label: 'Website', href: settings.website },
   ].filter((s) => s.href);
   const wa = whatsappHref(settings.whatsapp);
   const hasContact = settings.phone || settings.email || settings.address.length > 0 || wa;
