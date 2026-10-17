@@ -21,6 +21,7 @@ export interface NavItem {
 /** Main navigation. Team, Gallery and Stories appear once there is something published for them. */
 export function buildNav(opts: { team: boolean; gallery: boolean; testimonials: boolean }): NavItem[] {
   return [
+    { href: '/', label: 'Home' },
     { href: '/classes', label: 'Classes' },
     { href: '/teacher-training', label: 'Teacher Training' },
     { href: '/about', label: 'About' },

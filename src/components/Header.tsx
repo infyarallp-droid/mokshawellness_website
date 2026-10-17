@@ -41,7 +41,8 @@ export default function Header({ nav }: { nav: NavItem[] }) {
     };
   }, [open]);
 
-  const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
+  // "/" (Home) is only active on the home page itself, not on every page.
+  const isActive = (href: string) => (href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(`${href}/`));
   const account = signedIn ? { href: '/account', label: 'My account' } : { href: '/login', label: 'Sign in' };
 
   return (
@@ -50,7 +51,7 @@ export default function Header({ nav }: { nav: NavItem[] }) {
         scrolled || open ? 'border-b border-forest/10 bg-cream/90 backdrop-blur-md' : 'border-b border-transparent bg-cream/0'
       }`}
     >
-      <div className="container-page flex h-[5.25rem] items-center sm:h-[6rem] justify-between gap-4">
+      <div className="container-page flex h-[4.5rem] items-center justify-between gap-4">
         <Link href="/" aria-label="Moksha Wellness — home" onClick={() => setOpen(false)} className="shrink-0 rounded-lg">
           <Logo />
         </Link>
@@ -98,7 +99,7 @@ export default function Header({ nav }: { nav: NavItem[] }) {
       </div>
 
       {open && (
-        <nav id="mobile-menu" aria-label="Mobile" className="container-page flex h-[calc(100dvh-5.25rem)] flex-col sm:h-[calc(100dvh-6rem)] gap-1 overflow-y-auto pb-10 pt-4 lg:hidden">
+        <nav id="mobile-menu" aria-label="Mobile" className="container-page flex h-[calc(100dvh-4.5rem)] flex-col gap-1 overflow-y-auto pb-10 pt-4 lg:hidden">
           {nav.map((item) => (
             <Link
               key={item.href}

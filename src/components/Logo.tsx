@@ -4,8 +4,6 @@ import logoFull from '@/assets/brand/logo.png';
 import logoFullWhite from '@/assets/brand/logo-white.png';
 import logoMark from '@/assets/brand/logo-mark.png';
 import logoMarkWhite from '@/assets/brand/logo-mark-white.png';
-import yogaPilates from '@/assets/brand/logo-yoga-pilates.png';
-import yogaPilatesWhite from '@/assets/brand/logo-yoga-pilates-white.png';
 
 // Logo files live in src/assets/brand (generated from the official logo, ESTD 2025) and are
 // imported, so every version gets a content-hashed URL and no cache can ever show an old logo.
@@ -64,16 +62,20 @@ export function FullLogo({ className = '', tone = 'colour', priority = false }: 
   );
 }
 
-/** The "Moksha Wellness · Yoga & Pilates" logo for the header (colour) and footer (white). */
-export default function Logo({ tone = 'dark', className = 'h-16 w-auto sm:h-[4.75rem]' }: { tone?: 'dark' | 'light'; className?: string }) {
+/** Horizontal lockup for the header and footer: the mark beside the name. */
+export default function Logo({ tone = 'dark' }: { tone?: 'dark' | 'light' }) {
   const light = tone === 'light';
   return (
-    <Image
-      src={light ? yogaPilatesWhite : yogaPilates}
-      alt={`${site.name} — Yoga & Pilates`}
-      priority={!light}
-      sizes="(max-width: 640px) 120px, 160px"
-      className={className}
-    />
+    <span className={`flex items-center gap-2.5 ${light ? 'text-cream' : 'text-forest'}`}>
+      <LogoMark priority={!light} tone={light ? 'white' : 'colour'} className="h-11 w-auto" />
+      <span className="leading-none">
+        <span className="block font-display text-[1.35rem] font-semibold uppercase tracking-[0.06em]">Moksha</span>
+        <span className="mt-1 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.3em]">
+          <span className={`h-px w-3 ${light ? 'bg-cream/50' : 'bg-bindu'}`} />
+          Wellness
+          <span className={`h-px w-3 ${light ? 'bg-cream/50' : 'bg-bindu'}`} />
+        </span>
+      </span>
+    </span>
   );
 }

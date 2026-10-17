@@ -26,7 +26,7 @@ export default function Footer({
     <footer className="bg-forest text-cream/80">
       <div className="container-page grid gap-12 py-16 md:grid-cols-[1.4fr_1fr_1fr]">
         <div>
-          <Logo tone="light" className="h-24 w-auto" />
+          <Logo tone="light" />
           <p className="mt-5 max-w-sm text-sm leading-relaxed text-cream/70">{settings.description || site.description}</p>
           {settings.hours.length > 0 && (
             <dl className="mt-5 max-w-xs space-y-1 text-sm">
