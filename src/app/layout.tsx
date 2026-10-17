@@ -5,6 +5,7 @@ import AnnouncementBar from '@/components/AnnouncementBar';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import ContactButtons from '@/components/ContactButtons';
+import ChatWidget from '@/components/ChatWidget';
 import { PreviewBanner } from '@/components/ui';
 import { buildNav, site } from '@/content/site';
 import { getSite, whatsappHref } from '@/lib/content';
@@ -38,6 +39,7 @@ export const viewport: Viewport = { themeColor: '#093a18' };
 export default async function RootLayout({ children }: { children: ReactNode }) {
   const s = await getSite();
   const settings = s.block('site.settings');
+  const bot = s.block('chatbot.settings');
   const nav = buildNav({ team: s.team.length > 0, gallery: s.gallery.length > 0, testimonials: s.testimonials.length > 0 });
   const policies = [
     s.legal('legal.privacy') && { href: '/privacy', label: 'Privacy' },
@@ -83,6 +85,9 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
             website: settings.website,
           }}
         />
+        {s.chatbotAvailable && bot.status !== 'off' && (
+          <ChatWidget botName={bot.botName || 'Moksha Assistant'} greeting={bot.greeting} suggestions={bot.suggestions} />
+        )}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
       </body>
     </html>

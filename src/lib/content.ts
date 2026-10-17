@@ -73,6 +73,8 @@ export interface GalleryItem {
 interface SitePayload {
   preview: boolean;
   taxPercent: number;
+  /** An OpenAI key is configured on the API (older API versions do not send this). */
+  chatbotAvailable?: boolean;
   blocks: Record<string, Record<string, unknown> | null>;
   team: TeamMember[];
   testimonials: Testimonial[];
@@ -97,6 +99,8 @@ export interface Site {
   live: boolean;
   preview: boolean;
   taxPercent: number;
+  /** The AI chatbot can run on the API; the admin also switches it on/off in "AI chatbot". */
+  chatbotAvailable: boolean;
   block: <K extends keyof Blocks>(key: K) => Blocks[K];
   legal: (key: LegalKey) => LegalBlock | null;
   team: TeamMember[];
@@ -175,6 +179,7 @@ export const getSite = cache(async (): Promise<Site> => {
     live: !!data,
     preview: !!data?.preview,
     taxPercent: data?.taxPercent ?? 0,
+    chatbotAvailable: !!data?.chatbotAvailable,
     block: (key) => merge(DEFAULT_BLOCKS[key], data?.blocks?.[key]),
     legal: (key) => {
       const b = data?.blocks?.[key] as LegalBlock | null | undefined;

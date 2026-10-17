@@ -93,6 +93,8 @@ export interface Blocks {
   'team.page': { heroEyebrow: string; heroTitle: string; heroBody: string };
   'testimonials.page': { heroEyebrow: string; heroTitle: string; heroBody: string };
   'gallery.page': { heroEyebrow: string; heroTitle: string; heroBody: string };
+  /** The AI chatbot's public settings (its extra facts and instructions stay on the API). */
+  'chatbot.settings': { status: string; botName: string; greeting: string; suggestions: string[] };
 }
 
 export interface LegalBlock {
@@ -253,6 +255,13 @@ export const DEFAULT_BLOCKS: Blocks = {
     heroEyebrow: 'Gallery',
     heroTitle: 'Inside the studio',
     heroBody: 'A look at our space, our classes and our community.',
+  },
+  'chatbot.settings': {
+    status: 'on',
+    botName: 'Moksha Assistant',
+    greeting:
+      'Namaste! I can help you find the right yoga or Pilates class, explain our programmes and plans, or pass your details to the studio team. What would you like to know?',
+    suggestions: ['Which class is right for a beginner?', 'Do you have online classes?', 'Tell me about teacher training', 'How do I join?'],
   },
 };
 
