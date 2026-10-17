@@ -4,6 +4,8 @@ import logoFull from '@/assets/brand/logo.png';
 import logoFullWhite from '@/assets/brand/logo-white.png';
 import logoMark from '@/assets/brand/logo-mark.png';
 import logoMarkWhite from '@/assets/brand/logo-mark-white.png';
+import yogaPilates from '@/assets/brand/logo-yoga-pilates.png';
+import yogaPilatesWhite from '@/assets/brand/logo-yoga-pilates-white.png';
 
 // Logo files live in src/assets/brand (generated from the official logo, ESTD 2025) and are
 // imported, so every version gets a content-hashed URL and no cache can ever show an old logo.
@@ -62,8 +64,16 @@ export function FullLogo({ className = '', tone = 'colour', priority = false }: 
   );
 }
 
-/** The official logo artwork for the header (colour) and footer (white). */
+/** The "Moksha Wellness · Yoga & Pilates" logo for the header (colour) and footer (white). */
 export default function Logo({ tone = 'dark', className = 'h-16 w-auto sm:h-[4.75rem]' }: { tone?: 'dark' | 'light'; className?: string }) {
   const light = tone === 'light';
-  return <FullLogo tone={light ? 'white' : 'colour'} priority={!light} className={className} />;
+  return (
+    <Image
+      src={light ? yogaPilatesWhite : yogaPilates}
+      alt={`${site.name} — Yoga & Pilates`}
+      priority={!light}
+      sizes="(max-width: 640px) 120px, 160px"
+      className={className}
+    />
+  );
 }
