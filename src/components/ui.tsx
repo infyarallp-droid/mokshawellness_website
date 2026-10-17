@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import type { Programme } from '@/content/programmes';
-import { site, whatsappLink } from '@/content/site';
+import { site } from '@/content/site';
+import { rupees, type OnlinePlan } from '@/lib/content';
 import { LogoMark, LotusMark } from './Logo';
 import Reveal from './Reveal';
 
@@ -51,7 +52,8 @@ const MODE_STYLE: Record<string, string> = {
   'Studio & Online': 'bg-brand/15 text-forest',
 };
 
-export function ProgrammeCard({ programme, index = 0 }: { programme: Programme; index?: number }) {
+export function ProgrammeCard({ programme, index = 0 }: { programme: Programme & { onlinePlans?: OnlinePlan[] }; index?: number }) {
+  const plans = programme.onlinePlans ?? [];
   return (
     <Reveal delay={Math.min(index, 5) * 70} className="h-full">
       <article
@@ -67,6 +69,25 @@ export function ProgrammeCard({ programme, index = 0 }: { programme: Programme; 
         <h3 className="mt-5 text-2xl font-medium leading-snug">{programme.name}</h3>
         <p className="mt-3 text-[0.95rem] leading-relaxed text-ink/75">{programme.summary}</p>
         <p className="mt-3 text-sm leading-relaxed text-ink/60">{programme.forWhom}</p>
+        {plans.length > 0 && (
+          <ul className="mt-5 space-y-2 border-t border-forest/10 pt-4" aria-label="Plans you can join online">
+            {plans.map((p) => (
+              <li key={p.id} className="flex items-center justify-between gap-3 text-sm">
+                <span className="text-ink/70">{p.title}</span>
+                <span className="flex items-center gap-3">
+                  <span className="font-semibold text-forest">{rupees(p.pricePaise)}</span>
+                  <Link
+                    href={`/checkout?plan=${p.id}`}
+                    className="rounded-full bg-forest px-3 py-1 text-xs font-semibold text-cream transition hover:bg-brand"
+                    aria-label={`Join ${programme.name}, ${p.title}, online`}
+                  >
+                    Join online
+                  </Link>
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
         <div className="mt-auto pt-6">
           <Link
             href={`/contact?interest=${programme.slug}#enquire`}
@@ -122,9 +143,22 @@ export function Faq({ items }: { items: { q: string; a: string }[] }) {
   );
 }
 
-/** Floating WhatsApp shortcut — rendered only when a WhatsApp number is set in content/site.ts. */
-export function WhatsAppButton() {
-  const href = whatsappLink();
+/** Shown while an admin previews unpublished drafts. */
+export function PreviewBanner() {
+  return (
+    <div className="bg-amber-300 text-amber-950">
+      <p className="container-page flex flex-wrap items-center justify-center gap-3 py-2 text-center text-sm font-medium">
+        Preview — you are seeing unpublished drafts.
+        <a href="/api/preview/exit" className="underline underline-offset-4">
+          Exit preview
+        </a>
+      </p>
+    </div>
+  );
+}
+
+/** Floating WhatsApp shortcut — rendered only when a WhatsApp number is set in the admin panel. */
+export function WhatsAppButton({ href }: { href: string | null }) {
   if (!href) return null;
   return (
     <a

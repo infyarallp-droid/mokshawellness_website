@@ -1,7 +1,11 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
+import Link from 'next/link';
 import Reveal from '@/components/Reveal';
+import { TeamCard } from '@/components/People';
 import { CtaBand, PageHero, SectionHeading } from '@/components/ui';
 import { FullLogo } from '@/components/Logo';
+import { getSite } from '@/lib/content';
 
 export const metadata: Metadata = {
   title: 'About',
@@ -9,65 +13,76 @@ export const metadata: Metadata = {
   alternates: { canonical: '/about' },
 };
 
-const values = [
-  { title: 'Practice over performance', text: 'There is nothing to win here. We care about how a posture feels and what it teaches you, not how it looks.' },
-  { title: 'Your limits are respected', text: 'You work within your own ability. Tell your teacher what is going on in your body, and ask for a modification whenever you need one.' },
-  { title: 'Clear, careful teaching', text: 'Simple instruction, a steady pace and room to ask questions, in the studio and online alike.' },
-  { title: 'A considerate space', text: 'Arrive on time, keep phones silent, and treat teachers and fellow students with respect. It is what lets everyone settle.' },
-];
-
-export default function AboutPage() {
+export default async function AboutPage() {
+  const s = await getSite();
+  const a = s.block('about.page');
   return (
     <>
-      <PageHero eyebrow="About Moksha Wellness" title="A place to practise, patiently">
-        <p>
-          Moksha means freedom. For us that is not a distant idea. It is the ease that comes from a body that moves
-          well and a mind that has learned to be quiet for a while.
-        </p>
+      <PageHero eyebrow={a.heroEyebrow} title={a.heroTitle}>
+        {a.heroBody && <p>{a.heroBody}</p>}
       </PageHero>
 
       <section className="container-page grid items-center gap-12 pb-16 sm:pb-24 lg:grid-cols-2">
         <Reveal>
           <div className="relative grid aspect-[4/3] place-items-center overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-sage to-sand">
-            <FullLogo className="h-auto w-[46%] max-w-[15rem]" />
+            {a.imageUrl ? (
+              <Image src={a.imageUrl} alt="" fill sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover" />
+            ) : (
+              <FullLogo className="h-auto w-[52%] max-w-[17rem]" />
+            )}
           </div>
         </Reveal>
         <div>
-          <SectionHeading eyebrow="What we offer" title="Yoga and Pilates, taught with care">
-            <p>
-              We teach regular yoga and Pilates classes in the studio and live online, and run teacher training
-              programmes for practitioners who want to go further.
-            </p>
-            <p className="mt-4">
-              Before you begin, we ask about your health and experience so that your teacher can guide you
-              appropriately. From there, the work is simple: show up, breathe, and practise.
-            </p>
+          <SectionHeading eyebrow={a.offerEyebrow} title={a.offerTitle}>
+            {a.offerParagraphs.map((p, i) => (
+              <p key={i} className={i ? 'mt-4' : ''}>
+                {p}
+              </p>
+            ))}
           </SectionHeading>
         </div>
       </section>
 
-      <section className="bg-sand/45 py-16 sm:py-24">
-        <div className="container-page">
-          <SectionHeading eyebrow="How we practise" title="What you can expect from us, and what we ask of you" />
-          <div className="mt-12 grid gap-x-12 gap-y-10 md:grid-cols-2">
-            {values.map((v, i) => (
-              <Reveal key={v.title} delay={(i % 2) * 90}>
-                <div className="flex gap-5">
-                  <span className="font-display text-3xl text-brand/50">0{i + 1}</span>
-                  <div>
-                    <h3 className="text-2xl font-medium">{v.title}</h3>
-                    <p className="mt-2 leading-relaxed text-ink/75">{v.text}</p>
+      {a.values.length > 0 && (
+        <section className="bg-sand/45 py-16 sm:py-24">
+          <div className="container-page">
+            <SectionHeading eyebrow={a.valuesEyebrow} title={a.valuesTitle} />
+            <div className="mt-12 grid gap-x-12 gap-y-10 md:grid-cols-2">
+              {a.values.map((v, i) => (
+                <Reveal key={`${v.title}-${i}`} delay={(i % 2) * 90}>
+                  <div className="flex gap-5">
+                    <span className="font-display text-3xl text-brand/50">{String(i + 1).padStart(2, '0')}</span>
+                    <div>
+                      <h3 className="text-2xl font-medium">{v.title}</h3>
+                      <p className="mt-2 leading-relaxed text-ink/75">{v.text}</p>
+                    </div>
                   </div>
-                </div>
-              </Reveal>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {s.team.length > 0 && (
+        <section className="container-page py-16 sm:py-24">
+          <div className="flex flex-wrap items-end justify-between gap-6">
+            <SectionHeading eyebrow={s.block('home.sections').teamEyebrow} title={s.block('home.sections').teamTitle} />
+            {s.team.length > 3 && (
+              <Link href="/team" className="btn-ghost">
+                Meet the whole team
+              </Link>
+            )}
+          </div>
+          <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {s.team.slice(0, 3).map((m, i) => (
+              <TeamCard key={m.id} member={m} index={i} />
             ))}
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
-      <CtaBand title="Come and practise with us.">
-        <p>Send an enquiry and we will help you choose a class, a format and a plan.</p>
-      </CtaBand>
+      <CtaBand title={a.ctaTitle}>{a.ctaBody && <p>{a.ctaBody}</p>}</CtaBand>
     </>
   );
 }

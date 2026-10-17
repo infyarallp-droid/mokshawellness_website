@@ -1,10 +1,8 @@
 import { z } from 'zod';
-import { allProgrammes } from './programmes';
 
 // One schema, used by the form (browser) and by the API route (server).
 
 export const MODES = ['No preference', 'Studio', 'Online'] as const;
-const slugs = allProgrammes.map((p) => p.slug);
 
 /** Reduce "+91 98765-43210" / "098765 43210" to the 10 digits the admin panel stores. */
 export function normalizeMobile(raw: string): string | null {
@@ -22,7 +20,8 @@ export const enquirySchema = z.object({
     .trim()
     .refine((v) => normalizeMobile(v) !== null, 'Enter a valid 10-digit mobile number'),
   email: z.string().trim().max(120).email('Enter a valid email address').or(z.literal('')),
-  interest: z.string().refine((v) => v === '' || slugs.includes(v), 'Choose a class from the list'),
+  // The server also checks the slug against the current programme list.
+  interest: z.string().max(100).regex(/^([a-z0-9]+(-[a-z0-9]+)*)?$/, 'Choose a class from the list'),
   mode: z.enum(MODES),
   message: z.string().trim().max(1000, 'Please keep your message under 1000 characters'),
   /** Honeypot: real visitors never see or fill this field. */

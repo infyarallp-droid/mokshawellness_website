@@ -2,7 +2,13 @@
 
 import { useRef, useState, type FormEvent } from 'react';
 import { enquirySchema, MODES, type EnquiryInput } from '@/content/enquiry';
-import { regularClasses, teacherTraining } from '@/content/programmes';
+
+export interface ProgrammeOption {
+  slug: string;
+  name: string;
+  mode?: string;
+  category: 'REGULAR' | 'TEACHER_TRAINING';
+}
 
 type Status = 'idle' | 'sending' | 'sent' | 'error';
 type FieldErrors = Partial<Record<keyof EnquiryInput, string>>;
@@ -17,7 +23,9 @@ const empty = (interest: string): EnquiryInput => ({
   company: '',
 });
 
-export default function EnquiryForm({ initialInterest = '' }: { initialInterest?: string }) {
+export default function EnquiryForm({ initialInterest = '', programmes }: { initialInterest?: string; programmes: ProgrammeOption[] }) {
+  const regularClasses = programmes.filter((p) => p.category === 'REGULAR');
+  const teacherTraining = programmes.filter((p) => p.category === 'TEACHER_TRAINING');
   const [values, setValues] = useState<EnquiryInput>(() => empty(initialInterest));
   const [errors, setErrors] = useState<FieldErrors>({});
   const [status, setStatus] = useState<Status>('idle');
