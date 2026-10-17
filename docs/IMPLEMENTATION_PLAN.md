@@ -1,6 +1,27 @@
 # Moksha Wellness — Platform Enhancement Plan
 
-Status: **proposed, awaiting approval** · Prepared 2026-10-17
+Status: **implemented** on branch `feature/platform-enhancement` in both repositories · Planned and built 2026-10-17
+
+## Decisions taken (supersede the open questions in §8)
+
+| Topic | Decision | Notes |
+|---|---|---|
+| Mobile sign-in | **Mobile number + password**, no OTP / SMS / DLT | Requested by the owner. A password was added because a mobile number alone would let anyone open someone else's account. OTP can be added later behind the same flow. |
+| Linking to studio records | Never automatic; staff link on **Website Logins** | Numbers are unverified. Online plan purchases by a new person create a new student record. |
+| Google sign-in | Implemented; account created only after a mobile number is entered | |
+| What can be paid online | Invoices **and** plans an admin marks "Sell online" | Fees appear publicly only for those plans. |
+| Recurring payments | Not implemented — one-time payments + renewal reminders | |
+| Payments | Razorpay **test mode** for the client demo; live after KYC | docs: admin repo `docs/SETUP_RAZORPAY.md` |
+| Hosting tier | Code works on Render free; Starter recommended once taking payments | |
+| Scheduler | DB outbox + idempotent `POST /internal/jobs/tick` (cron-job.org free, Render cron, or in-process) | |
+| Policy pages | Privacy / terms / refunds as CMS sections with suggested drafts, shown only once published | Needed for Razorpay KYC and Meta live mode. |
+
+Setup guides live in the admin repo: `docs/SETUP_WHATSAPP.md`, `docs/SETUP_RAZORPAY.md`,
+`docs/SETUP_GOOGLE_AUTH.md`, `docs/ADMIN_GUIDE.md`, `DEPLOYMENT.md`. Testing: `docs/TESTING.md` here.
+
+---
+
+*The original plan follows, unchanged, for reference.*
 Covers two repositories:
 
 | Repo | Path | Stack | Hosting |
