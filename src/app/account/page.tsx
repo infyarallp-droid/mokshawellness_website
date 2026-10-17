@@ -12,6 +12,36 @@ interface Dashboard {
   invoices: { id: string; invoiceNo: string; createdAt: string; dueDate: string | null; status: string; totalPaise: string; paidPaise: string; balancePaise: string; items: string[] }[];
   payments: { id: string; paidAt: string; amountPaise: string; refundedPaise: string; mode: string; invoiceNo: string; receiptId: string | null; receiptNo: string | null }[];
   orders: { id: string; description: string; amountPaise: string; status: string; createdAt: string; paidAt: string | null; failureReason: string | null }[];
+  /** Online classes of the courses this student is enrolled in (older API versions do not send this). */
+  zoomClasses?: ZoomClass[];
+}
+
+interface ZoomClass {
+  id: string;
+  title: string;
+  course: string;
+  batch: string | null;
+  meetingUrl: string;
+  meetingId: string | null;
+  passcode: string | null;
+  days: string[];
+  startTime: string | null;
+  startsAt: string | null;
+  durationMinutes: number;
+  notes: string | null;
+}
+
+const DAY: Record<string, string> = { MON: 'Mon', TUE: 'Tue', WED: 'Wed', THU: 'Thu', FRI: 'Fri', SAT: 'Sat', SUN: 'Sun' };
+const time12 = (hhmm: string) => {
+  const [h, m] = hhmm.split(':').map(Number);
+  return `${((h + 11) % 12) + 1}:${String(m).padStart(2, '0')} ${h < 12 ? 'am' : 'pm'}`;
+};
+function zoomSchedule(z: ZoomClass) {
+  if (z.startsAt) {
+    return new Date(z.startsAt).toLocaleString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', hour: 'numeric', minute: '2-digit', timeZone: 'Asia/Kolkata' });
+  }
+  const days = z.days.length === 7 ? 'Every day' : z.days.map((d) => DAY[d] ?? d).join(', ');
+  return `${days}${z.startTime ? ` · ${time12(z.startTime)}` : ''}`;
 }
 
 const ENROLMENT: Record<string, { label: string; cls: string }> = {
@@ -115,6 +145,59 @@ export default async function AccountPage() {
             ))}
           </ul>
         </div>
+      )}
+
+      {dash.linked && (
+        <Panel title="My Zoom classes" action={<span className="text-sm text-ink/60">Times are India time (IST)</span>}>
+          {!dash.zoomClasses?.length ? (
+            <p className="text-ink/60">
+              Online class links for your courses will appear here once your enrolment is active. Questions?{' '}
+              <Link href="/contact" className="font-semibold text-forest underline underline-offset-4">
+                Contact the studio
+              </Link>
+              .
+            </p>
+          ) : (
+            <ul className="grid gap-4 md:grid-cols-2">
+              {dash.zoomClasses.map((z) => (
+                <li key={z.id} className="flex flex-col gap-3 rounded-2xl border border-forest/10 bg-sage/30 p-5">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-clay">
+                      {z.course}
+                      {z.batch ? ` · ${z.batch}` : ''}
+                    </p>
+                    <h3 className="mt-1 text-xl font-medium">{z.title}</h3>
+                    <p className="mt-1 text-sm text-ink/70">
+                      {z.startsAt ? 'One-off session · ' : ''}
+                      {zoomSchedule(z)} · {z.durationMinutes} min
+                    </p>
+                  </div>
+                  {(z.meetingId || z.passcode) && (
+                    <dl className="flex flex-wrap gap-x-5 gap-y-1 text-sm">
+                      {z.meetingId && (
+                        <div>
+                          <dt className="inline text-ink/60">Meeting ID </dt>
+                          <dd className="inline select-all font-medium">{z.meetingId}</dd>
+                        </div>
+                      )}
+                      {z.passcode && (
+                        <div>
+                          <dt className="inline text-ink/60">Passcode </dt>
+                          <dd className="inline select-all font-medium">{z.passcode}</dd>
+                        </div>
+                      )}
+                    </dl>
+                  )}
+                  {z.notes && <p className="text-sm leading-relaxed text-ink/70">{z.notes}</p>}
+                  <a href={z.meetingUrl} target="_blank" rel="noopener noreferrer" className="btn-primary mt-auto self-start !py-2.5">
+                    Join on Zoom
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+          <p className="mt-4 text-xs text-ink/50">These links are only for you — please do not share them.</p>
+        </Panel>
       )}
 
       <div className="grid gap-8 lg:grid-cols-2">
