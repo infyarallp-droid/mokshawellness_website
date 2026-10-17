@@ -93,6 +93,7 @@ export interface Blocks {
   'team.page': { heroEyebrow: string; heroTitle: string; heroBody: string };
   'testimonials.page': { heroEyebrow: string; heroTitle: string; heroBody: string };
   'gallery.page': { heroEyebrow: string; heroTitle: string; heroBody: string };
+  'blog.page': { heroEyebrow: string; heroTitle: string; heroBody: string };
   /** The AI chatbot's public settings (its extra facts and instructions stay on the API). */
   'chatbot.settings': { status: string; botName: string; greeting: string; suggestions: string[] };
 }
@@ -255,6 +256,11 @@ export const DEFAULT_BLOCKS: Blocks = {
     heroEyebrow: 'Gallery',
     heroTitle: 'Inside the studio',
     heroBody: 'A look at our space, our classes and our community.',
+  },
+  'blog.page': {
+    heroEyebrow: 'Blog',
+    heroTitle: 'Notes on practice',
+    heroBody: 'Articles from our teachers on yoga, Pilates, breath and everyday wellbeing.',
   },
   'chatbot.settings': {
     status: 'on',

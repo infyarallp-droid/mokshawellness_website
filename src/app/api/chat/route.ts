@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { AdminApiError, adminFetch, clientIpFrom } from '@/lib/server/admin-api';
 
-// AI chatbot → the admin API, which holds the OpenAI key, knows the studio content and
+// AI chatbot → the admin API, which holds the Anthropic (Claude) key, knows the studio content and
 // saves leads. This route only forwards the conversation and streams the reply back.
 
 export const runtime = 'nodejs';

@@ -18,8 +18,8 @@ export interface NavItem {
   label: string;
 }
 
-/** Main navigation. Team, Gallery and Stories appear once there is something published for them. */
-export function buildNav(opts: { team: boolean; gallery: boolean; testimonials: boolean }): NavItem[] {
+/** Main navigation. Team, Gallery, Stories and Blog appear once there is something published for them. */
+export function buildNav(opts: { team: boolean; gallery: boolean; testimonials: boolean; blog: boolean }): NavItem[] {
   return [
     { href: '/', label: 'Home' },
     { href: '/classes', label: 'Classes' },
@@ -28,6 +28,7 @@ export function buildNav(opts: { team: boolean; gallery: boolean; testimonials: 
     ...(opts.team ? [{ href: '/team', label: 'Team' }] : []),
     ...(opts.testimonials ? [{ href: '/testimonials', label: 'Stories' }] : []),
     ...(opts.gallery ? [{ href: '/gallery', label: 'Gallery' }] : []),
+    ...(opts.blog ? [{ href: '/blog', label: 'Blog' }] : []),
     { href: '/contact', label: 'Contact' },
   ];
 }

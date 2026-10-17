@@ -70,10 +70,32 @@ export interface GalleryItem {
   album: string | null;
 }
 
+export interface BlogPostCard {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  coverImageUrl: string | null;
+  coverAlt: string | null;
+  authorName: string | null;
+  tags: string[];
+  isFeatured: boolean;
+  publishedAt: string | null;
+  readMinutes: number;
+}
+export interface BlogPost extends BlogPostCard {
+  body: string;
+  seoTitle: string | null;
+  seoDescription: string | null;
+  updatedAt: string;
+}
+
 interface SitePayload {
   preview: boolean;
+  /** Visible blog articles (older API versions do not send this). */
+  blogCount?: number;
   taxPercent: number;
-  /** An OpenAI key is configured on the API (older API versions do not send this). */
+  /** An Anthropic (Claude) key is configured on the API (older API versions do not send this). */
   chatbotAvailable?: boolean;
   blocks: Record<string, Record<string, unknown> | null>;
   team: TeamMember[];
@@ -109,6 +131,8 @@ export interface Site {
   announcements: Announcement[];
   gallery: GalleryItem[];
   programmes: SiteProgramme[];
+  /** Number of published blog articles. */
+  blogCount: number;
 }
 
 const fallbackProgrammes = (): SiteProgramme[] => [
@@ -116,23 +140,35 @@ const fallbackProgrammes = (): SiteProgramme[] => [
   ...teacherTraining.map((p) => ({ ...p, id: null, category: 'TEACHER_TRAINING' as const, imageUrl: null, onlinePlans: [] })),
 ];
 
-async function fetchSite(preview: boolean): Promise<SitePayload | null> {
+/** GET a public content endpoint; null when the API is not configured, unreachable or answers an error. */
+async function fetchPublic<T>(path: string, preview: boolean, quiet404 = false): Promise<T | null> {
   const base = process.env.ADMIN_API_URL?.replace(/\/+$/, '');
   if (!base) return null;
   try {
-    const res = await fetch(`${base}/api/public/site${preview ? '?preview=1' : ''}`, {
+    const res = await fetch(`${base}/api/public${path}${preview ? '?preview=1' : ''}`, {
       headers: preview ? { 'x-service-key': process.env.WEBSITE_SERVICE_KEY ?? '' } : {},
       ...(preview ? { cache: 'no-store' as const } : { next: { revalidate: REVALIDATE_SECONDS, tags: [CMS_TAG] } }),
       signal: AbortSignal.timeout(preview ? 30_000 : 12_000),
     });
     if (!res.ok) {
-      console.error(`[content] admin API answered ${res.status}`);
+      if (!(quiet404 && res.status === 404)) console.error(`[content] admin API answered ${res.status} for ${path}`);
       return null;
     }
-    return (await res.json()) as SitePayload;
+    return (await res.json()) as T;
   } catch (err) {
     console.error('[content] admin API unreachable — using built-in content:', (err as Error).name);
     return null;
+  }
+}
+
+const fetchSite = (preview: boolean) => fetchPublic<SitePayload>('/site', preview);
+
+async function isPreview() {
+  try {
+    return (await draftMode()).isEnabled;
+  } catch {
+    // Outside a request (build-time metadata, sitemap): no draft mode.
+    return false;
   }
 }
 
@@ -153,13 +189,7 @@ function merge<T extends object>(defaults: T, data: Record<string, unknown> | nu
 
 /** All website content for this request (deduplicated across components). */
 export const getSite = cache(async (): Promise<Site> => {
-  let preview = false;
-  try {
-    preview = (await draftMode()).isEnabled;
-  } catch {
-    // Outside a request (build-time metadata): no draft mode.
-  }
-  const data = await fetchSite(preview);
+  const data = await fetchSite(await isPreview());
   const programmes: SiteProgramme[] = data
     ? data.programmes.map((p) => ({
         id: p.id,
@@ -191,8 +221,24 @@ export const getSite = cache(async (): Promise<Site> => {
     announcements: data?.announcements ?? [],
     gallery: data?.gallery ?? [],
     programmes: programmes.length ? programmes : fallbackProgrammes(),
+    blogCount: data?.blogCount ?? 0,
   };
 });
+
+/** Published blog articles, featured first, then newest first (no article bodies). */
+export const getBlogPosts = cache(async (): Promise<BlogPostCard[]> => {
+  const data = await fetchPublic<{ posts: BlogPostCard[] }>('/blog', await isPreview());
+  return data?.posts ?? [];
+});
+
+/** One blog article and up to three to read next, or null if there is no such (visible) article. */
+export const getBlogPost = cache(async (slug: string): Promise<{ post: BlogPost; related: BlogPostCard[] } | null> => {
+  if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)) return null;
+  return fetchPublic<{ post: BlogPost; related: BlogPostCard[] }>(`/blog/${slug}`, await isPreview(), true);
+});
+
+/** e.g. "17 October 2026". */
+export const formatDate = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Kolkata' });
 
 /** wa.me link with a pre-filled greeting, or null when no WhatsApp number is configured. */
 export function whatsappHref(number: string, message = 'Hello Moksha Wellness, I would like to know more about your classes.') {

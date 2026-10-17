@@ -40,7 +40,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   const s = await getSite();
   const settings = s.block('site.settings');
   const bot = s.block('chatbot.settings');
-  const nav = buildNav({ team: s.team.length > 0, gallery: s.gallery.length > 0, testimonials: s.testimonials.length > 0 });
+  const nav = buildNav({ team: s.team.length > 0, gallery: s.gallery.length > 0, testimonials: s.testimonials.length > 0, blog: s.blogCount > 0 });
   const policies = [
     s.legal('legal.privacy') && { href: '/privacy', label: 'Privacy' },
     s.legal('legal.terms') && { href: '/terms', label: 'Terms' },
