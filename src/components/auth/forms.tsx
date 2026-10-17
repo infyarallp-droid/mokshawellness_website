@@ -107,24 +107,61 @@ function WhatsAppOptIn({ checked, onChange }: { checked: boolean; onChange: (v: 
   );
 }
 
+type Via = 'mobile' | 'email';
+
+/** "Mobile number | Email" switch shown above the sign-in and sign-up forms. */
+function ViaSwitch({ value, onChange, label }: { value: Via; onChange: (v: Via) => void; label: string }) {
+  return (
+    <div role="radiogroup" aria-label={label} className="mb-5 grid grid-cols-2 rounded-full bg-sage/50 p-1 text-sm font-semibold">
+      {(['mobile', 'email'] as const).map((v) => (
+        <button
+          key={v}
+          type="button"
+          role="radio"
+          aria-checked={value === v}
+          onClick={() => onChange(v)}
+          className={`rounded-full px-4 py-2 transition ${value === v ? 'bg-white text-forest shadow-sm' : 'text-ink/60 hover:text-forest'}`}
+        >
+          {v === 'mobile' ? 'Mobile number' : 'Email'}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export function LoginForm({ next }: { next: string }) {
-  const [mobile, setMobile] = useState('');
+  const [via, setVia] = useState<Via>('mobile');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const { submit, busy, error, fieldErrors, slow } = useSubmit('/api/auth/login');
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
-    submit({ mobile, password, next });
+    submit({ identifier, password, next });
   };
   return (
     <form onSubmit={onSubmit} className="space-y-4" noValidate>
-      <FormField id="mobile" label="Mobile number" error={fieldErrors.mobile}>
-        <input id="mobile" className="field" inputMode="tel" autoComplete="tel" placeholder="98765 43210" value={mobile} onChange={(e) => setMobile(e.target.value)} required />
-      </FormField>
+      <ViaSwitch
+        value={via}
+        label="Sign in with"
+        onChange={(v) => {
+          setVia(v);
+          setIdentifier('');
+        }}
+      />
+      {via === 'mobile' ? (
+        <FormField id="identifier" label="Mobile number" error={fieldErrors.identifier ?? fieldErrors.mobile}>
+          <input id="identifier" className="field" inputMode="tel" autoComplete="tel" placeholder="98765 43210" value={identifier} onChange={(e) => setIdentifier(e.target.value)} required />
+        </FormField>
+      ) : (
+        <FormField id="identifier" label="Email" error={fieldErrors.identifier}>
+          <input id="identifier" type="email" className="field" inputMode="email" autoComplete="email" placeholder="you@example.com" value={identifier} onChange={(e) => setIdentifier(e.target.value)} required />
+        </FormField>
+      )}
       <FormField id="password" label="Password" error={fieldErrors.password}>
         <PasswordInput id="password" value={password} onChange={setPassword} autoComplete="current-password" />
       </FormField>
       <FormError error={error} slow={slow} />
-      <button type="submit" className="btn-primary w-full" disabled={busy || !mobile || !password}>
+      <button type="submit" className="btn-primary w-full" disabled={busy || !identifier || !password}>
         {busy ? 'Signing in…' : 'Sign in'}
       </button>
       <p className="text-center text-xs text-ink/50">Forgot your password? Contact the studio and we will reset it for you.</p>
@@ -133,6 +170,7 @@ export function LoginForm({ next }: { next: string }) {
 }
 
 export function SignupForm({ next, policies }: { next: string; policies: { terms: boolean; privacy: boolean } }) {
+  const [via, setVia] = useState<Via>('mobile');
   const [f, setF] = useState({ fullName: '', mobile: '', email: '', password: '', confirm: '', whatsappOptIn: false, company: '' });
   const [localError, setLocalError] = useState<string | null>(null);
   const { submit, busy, error, fieldErrors, slow } = useSubmit('/api/auth/signup');
@@ -141,19 +179,40 @@ export function SignupForm({ next, policies }: { next: string; policies: { terms
     e.preventDefault();
     if (f.password !== f.confirm) return setLocalError('The two passwords do not match.');
     setLocalError(null);
-    submit({ ...f, next });
+    submit({ ...f, method: via === 'email' ? 'EMAIL_PASSWORD' : 'MOBILE_PASSWORD', next });
   };
+  const emailField = (
+    <FormField id="email" label={via === 'email' ? 'Email' : 'Email (optional)'} error={fieldErrors.email} hint={via === 'email' ? 'You will use this email to sign in.' : 'Add it to also sign in with your email.'}>
+      <input id="email" type="email" className="field" autoComplete="email" placeholder="you@example.com" value={f.email} onChange={(e) => set('email', e.target.value)} required={via === 'email'} />
+    </FormField>
+  );
+  const mobileField = (
+    <FormField
+      id="mobile"
+      label="Mobile number"
+      error={fieldErrors.mobile}
+      hint={via === 'email' ? 'Required — the studio uses it for your classes, receipts and reminders.' : 'You will use this number to sign in.'}
+    >
+      <input id="mobile" className="field" inputMode="tel" autoComplete="tel" placeholder="98765 43210" value={f.mobile} onChange={(e) => set('mobile', e.target.value)} required />
+    </FormField>
+  );
   return (
     <form onSubmit={onSubmit} className="space-y-4" noValidate>
+      <ViaSwitch value={via} onChange={setVia} label="Sign up with" />
       <FormField id="fullName" label="Full name" error={fieldErrors.fullName}>
         <input id="fullName" className="field" autoComplete="name" value={f.fullName} onChange={(e) => set('fullName', e.target.value)} required />
       </FormField>
-      <FormField id="mobile" label="Mobile number" error={fieldErrors.mobile} hint="You will use this number to sign in.">
-        <input id="mobile" className="field" inputMode="tel" autoComplete="tel" placeholder="98765 43210" value={f.mobile} onChange={(e) => set('mobile', e.target.value)} required />
-      </FormField>
-      <FormField id="email" label="Email (optional)" error={fieldErrors.email}>
-        <input id="email" type="email" className="field" autoComplete="email" value={f.email} onChange={(e) => set('email', e.target.value)} />
-      </FormField>
+      {via === 'email' ? (
+        <>
+          {emailField}
+          {mobileField}
+        </>
+      ) : (
+        <>
+          {mobileField}
+          {emailField}
+        </>
+      )}
       <FormField id="password" label="Password" error={fieldErrors.password} hint="At least 8 characters, with a letter and a number.">
         <PasswordInput id="password" value={f.password} onChange={(v) => set('password', v)} autoComplete="new-password" />
       </FormField>
@@ -164,7 +223,7 @@ export function SignupForm({ next, policies }: { next: string; policies: { terms
       {/* Honeypot for bots — hidden from people and screen readers. */}
       <input type="text" name="company" tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" value={f.company} onChange={(e) => set('company', e.target.value)} />
       <FormError error={localError ?? error} slow={slow} />
-      <button type="submit" className="btn-primary w-full" disabled={busy || !f.fullName || !f.mobile || !f.password}>
+      <button type="submit" className="btn-primary w-full" disabled={busy || !f.fullName || !f.mobile || !f.password || (via === 'email' && !f.email)}>
         {busy ? 'Creating your account…' : 'Create account'}
       </button>
       {/* Only link to policy pages the studio has published (they 404 until then). */}

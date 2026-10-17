@@ -9,7 +9,7 @@
 | `pnpm build` | Production build (pages, routes, config) |
 | `pnpm test:e2e` | Browser journeys with Playwright (below) |
 
-The admin API has its own suite (99 tests: accounts, Google sign-in, Website Logins, CMS, WhatsApp
+The admin API has its own suite (103 tests: accounts, Google sign-in, Website Logins, CMS, WhatsApp
 consent/campaigns/rules/outbox, Razorpay orders/webhooks/refunds, access control, and the original
 studio scenarios) — run `pnpm --filter @moksha/api test` in the admin repo.
 
@@ -20,10 +20,11 @@ studio scenarios) — run `pnpm --filter @moksha/api test` in the admin repo.
 1. Public pages render with the logo, no browser console errors (catches CSP mistakes), desktop and phone, mobile menu.
 2. Account pages redirect signed-out visitors to sign-in.
 3. Sign up with mobile + password (WhatsApp opt-in), sign out, wrong password, sign in.
-4. The new account appears on the admin **Website Logins** page with a suggested student match; staff link it; the student then sees their classes and payment due.
-5. An admin edits the home headline and publishes; the website shows it within seconds; then restores it.
-6. An admin adds a team member with an uploaded photo; it appears on `/team` with the photo; then removes it.
-7. The admin panel works at phone width (drawer navigation).
+4. Sign up with email (the mobile number is still required), sign out, sign in with the email in a different letter case.
+5. The new account appears on the admin **Website Logins** page with a suggested student match; staff link it; the student then sees their classes and payment due.
+6. An admin edits the home headline and publishes; the website shows it within seconds; then restores it.
+7. An admin adds a team member with an uploaded photo; it appears on `/team` with the photo; then removes it.
+8. The admin panel works at phone width (drawer navigation).
 
 ### Running them
 

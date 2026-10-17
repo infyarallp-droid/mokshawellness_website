@@ -27,7 +27,7 @@ the menu/footer only when they have published content.
 
 ## Student accounts and payments
 
-- `/signup`, `/login`: mobile number + password, or **Continue with Google** (a mobile number is mandatory before the account is created).
+- `/signup`, `/login`: **mobile number or email** + password, or **Continue with Google**. A mobile number is mandatory for every account, whichever way it is created; emails are unique and case-insensitive.
 - `/account`: classes, invoices (PDF), payments and receipts (PDF), online payments, plans to join online. `/account/settings`: profile, password, WhatsApp opt-in, connect Google, sign out other devices.
 - `/checkout`: Razorpay Checkout for an invoice balance or an online plan; `/payment/[id]`: confirmation (waits for the server's verification).
 - New accounts appear on the admin **Website Logins** page, where staff link them to the student record.
@@ -72,10 +72,10 @@ All are server-only except `NEXT_PUBLIC_SITE_URL`.
 
 ## Logo
 
-Generated from the official vector logo (`moksha-logo-estd-2025-print.pdf`) without altering the
-artwork: `public/logo.png` (full), `public/logo-white.png`, `public/logo-mark.png` (lotus mark),
+Generated from the official logo (ESTD 2025, supplied as a high-resolution image) without altering
+the artwork: `public/logo.png` (full), `public/logo-white.png`, `public/logo-mark.png` (lotus mark),
 `public/logo-mark-white.png`, plus `src/app/icon.png`, `apple-icon.png`, `opengraph-image.png` and
-the manifest icons. Brand colours (`src/app/globals.css`): lotus green `#17643c`, bindu red `#d81e2c`.
+the manifest icons. Brand colours (`src/app/globals.css`): lotus green `#093a18`, bindu maroon `#82171c`.
 
 ## Deploy (Vercel)
 

@@ -1,13 +1,17 @@
 import Image from 'next/image';
 import { site } from '@/content/site';
+import logoFull from '@/assets/brand/logo.png';
+import logoFullWhite from '@/assets/brand/logo-white.png';
+import logoMark from '@/assets/brand/logo-mark.png';
+import logoMarkWhite from '@/assets/brand/logo-mark-white.png';
 
-// Logo files (generated from the official vector logo, ESTD 2025):
-//   /logo.png             full stacked logo, colour, transparent      1200×998
-//   /logo-white.png       full stacked logo for dark backgrounds      1200×998
-//   /logo-mark.png        lotus mark only, colour                       640×484
-//   /logo-mark-white.png  lotus mark only, white                        640×484
-const MARK = { src: '/logo-mark.png', white: '/logo-mark-white.png', width: 640, height: 484 };
-const FULL = { src: '/logo.png', white: '/logo-white.png', width: 1200, height: 998 };
+// Logo files live in src/assets/brand (generated from the official logo, ESTD 2025) and are
+// imported, so every version gets a content-hashed URL and no cache can ever show an old logo.
+//   logo.png / logo-white.png            full stacked logo (colour / for dark backgrounds)  1200×1099
+//   logo-mark.png / logo-mark-white.png  lotus mark only                                    640×563
+// Copies in /public (logo.png, logo-mark.png) are only for external use: search engines, Razorpay.
+const MARK = { src: logoMark, white: logoMarkWhite };
+const FULL = { src: logoFull, white: logoFullWhite };
 
 /**
  * The lotus mark drawn in the current text colour (the logo file is used as a
@@ -19,8 +23,8 @@ export function LotusMark({ className = '' }: { className?: string }) {
       aria-hidden="true"
       className={`inline-block bg-current ${className}`}
       style={{
-        maskImage: `url(${MARK.src})`,
-        WebkitMaskImage: `url(${MARK.src})`,
+        maskImage: `url(${MARK.src.src})`,
+        WebkitMaskImage: `url(${MARK.src.src})`,
         maskSize: 'contain',
         WebkitMaskSize: 'contain',
         maskRepeat: 'no-repeat',
@@ -38,8 +42,6 @@ export function LogoMark({ className = '', priority = false, tone = 'colour' }: 
     <Image
       src={tone === 'white' ? MARK.white : MARK.src}
       alt=""
-      width={MARK.width}
-      height={MARK.height}
       priority={priority}
       sizes="(max-width: 640px) 120px, 240px"
       className={className}
@@ -52,9 +54,7 @@ export function FullLogo({ className = '', tone = 'colour', priority = false }: 
   return (
     <Image
       src={tone === 'white' ? FULL.white : FULL.src}
-      alt={`${site.name} — ${site.tagline}`}
-      width={FULL.width}
-      height={FULL.height}
+      alt={`${site.name} — established 2025`}
       priority={priority}
       sizes="(max-width: 640px) 60vw, 320px"
       className={className}

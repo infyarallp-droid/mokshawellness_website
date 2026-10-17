@@ -32,7 +32,7 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export const viewport: Viewport = { themeColor: '#17643c' };
+export const viewport: Viewport = { themeColor: '#093a18' };
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
   const s = await getSite();

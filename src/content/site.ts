@@ -10,7 +10,7 @@ export const site = {
     'Moksha Wellness offers yoga and Pilates classes in studio and online, and teacher training programmes for those who want to go deeper.',
   url: process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000',
   /** Logo files in /public: logo.png (full stacked logo), logo-mark.png (lotus mark), and white versions. */
-  logo: { src: '/logo.png', width: 1200, height: 998 },
+  logo: { src: '/logo.png', width: 1200, height: 1099 },
 };
 
 export interface NavItem {

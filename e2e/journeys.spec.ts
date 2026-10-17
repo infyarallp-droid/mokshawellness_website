@@ -30,6 +30,7 @@ function watchConsole(page: Page) {
 async function adminLogin(page: Page) {
   await page.goto(`${ADMIN}/login`);
   await page.getByLabel('Email').fill(ADMIN_EMAIL);
+  await shot(page, 'admin-login');
   await page.getByLabel('Password', { exact: true }).fill(ADMIN_PASSWORD);
   await page.getByRole('button', { name: 'Sign in' }).click();
   await expect(page.getByRole('link', { name: 'Dashboard' })).toBeVisible();
@@ -96,6 +97,36 @@ test('sign up with mobile + password, sign out, sign back in', async ({ page }) 
   await page.getByLabel('Password', { exact: true }).fill(password);
   await page.getByRole('button', { name: 'Sign in' }).click();
   await expect(page).toHaveURL(/\/account$/);
+  expect(errors, errors.join('\n')).toEqual([]);
+});
+
+test('sign up with email (mobile still required) and sign in with the email', async ({ page }) => {
+  const errors = watchConsole(page);
+  const email = `e2e.${run}@example.com`;
+  const emailMobile = `8${run}${Math.floor(Math.random() * 900 + 100)}`;
+  await page.goto('/signup');
+  await page.getByRole('radio', { name: 'Email' }).click();
+  await page.getByLabel('Full name').fill('Playwright Student');
+  await page.getByLabel('Email', { exact: true }).fill(email);
+  await page.getByLabel('Password', { exact: true }).fill(password);
+  await page.getByLabel('Confirm password').fill(password);
+  // Without the mobile number the account cannot be created.
+  await expect(page.getByRole('button', { name: 'Create account' })).toBeDisabled();
+  await page.getByLabel('Mobile number').fill(emailMobile);
+  await shot(page, 'site-signup-email');
+  await page.getByRole('button', { name: 'Create account' }).click();
+  await expect(page).toHaveURL(/\/account$/);
+  await page.getByRole('button', { name: 'Sign out' }).click();
+  await expect(page).toHaveURL(SITE + '/');
+
+  await page.goto('/login');
+  await page.getByRole('radio', { name: 'Email' }).click();
+  await page.getByLabel('Email').fill(email.toUpperCase());
+  await page.getByLabel('Password', { exact: true }).fill(password);
+  await shot(page, 'site-login-email');
+  await page.getByRole('button', { name: 'Sign in' }).click();
+  await expect(page).toHaveURL(/\/account$/);
+  await expect(page.getByRole('heading', { name: /Namaste, Playwright/ })).toBeVisible();
   expect(errors, errors.join('\n')).toEqual([]);
 });
 

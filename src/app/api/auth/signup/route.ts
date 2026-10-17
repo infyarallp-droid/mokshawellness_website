@@ -6,7 +6,7 @@ import { safeNext, setSession } from '@/lib/server/session';
 export const runtime = 'nodejs';
 export const maxDuration = 60;
 
-// POST /api/auth/signup — create an account with mobile number + password
+// POST /api/auth/signup — create an account (mobile number always required; email optional or chosen as the sign-in)
 export async function POST(request: Request) {
   if (!isSameOrigin(request)) return jsonError(403, 'Please use the sign-up form on this website.');
   const body = await readJson(request);
@@ -17,6 +17,7 @@ export async function POST(request: Request) {
     const res = await adminJson<{ token: string; expiresAt: string }>('/api/customer-auth/signup', {
       method: 'POST',
       body: {
+        method: body.method === 'EMAIL_PASSWORD' ? 'EMAIL_PASSWORD' : 'MOBILE_PASSWORD',
         fullName: String(body.fullName ?? ''),
         mobile: String(body.mobile ?? ''),
         email: String(body.email ?? ''),

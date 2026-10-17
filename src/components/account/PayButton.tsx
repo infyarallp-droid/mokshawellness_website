@@ -71,10 +71,10 @@ export default function PayButton({
         currency: order.currency,
         name: 'Moksha Wellness',
         description: order.description,
-        image: `${window.location.origin}/logo-mark.png`,
+        image: `${window.location.origin}/logo-mark.png?v=2025-2`,
         prefill: { name: checkout.name, contact: `+91${checkout.mobile}`, email: checkout.email ?? undefined },
         notes: { order: order.id },
-        theme: { color: '#17643c' },
+        theme: { color: '#093a18' },
         handler: async (r: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) => {
           // Verified on the server (signature + Razorpay's own record) before the status page shows "paid".
           await fetch('/api/account/payments/verify', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(r) }).catch(() => undefined);

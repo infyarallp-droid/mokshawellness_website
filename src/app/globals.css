@@ -2,16 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Palette — sampled from the Moksha Wellness logo (lotus green #17643c, bindu red #d81e2c) on a warm cream. */
+/* Palette — sampled from the Moksha Wellness logo (lotus green #093a18, bindu maroon #82171c) on a warm cream. */
 :root {
   --cream: 250 246 239;
   --sand: 240 231 215;
-  --sage: 223 236 227;
-  --ink: 27 40 32;
-  --forest: 15 74 44;
-  --brand: 23 100 60;
-  --clay: 168 27 37;
-  --bindu: 216 30 44;
+  --sage: 223 234 225;
+  --ink: 24 36 28;
+  --forest: 9 58 24;
+  --brand: 24 96 52;
+  --clay: 130 23 28;
+  --bindu: 130 23 28;
 }
 
 @layer base {

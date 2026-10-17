@@ -9,6 +9,7 @@ Status: **implemented** on branch `feature/platform-enhancement` in both reposit
 | Mobile sign-in | **Mobile number + password**, no OTP / SMS / DLT | Requested by the owner. A password was added because a mobile number alone would let anyone open someone else's account. OTP can be added later behind the same flow. |
 | Linking to studio records | Never automatic; staff link on **Website Logins** | Numbers are unverified. Online plan purchases by a new person create a new student record. |
 | Google sign-in | Implemented; account created only after a mobile number is entered | |
+| Email sign-in | Added on request: sign up / sign in with email + password; mobile number still mandatory; emails unique (case-insensitive), never used to merge accounts | |
 | What can be paid online | Invoices **and** plans an admin marks "Sell online" | Fees appear publicly only for those plans. |
 | Recurring payments | Not implemented — one-time payments + renewal reminders | |
 | Payments | Razorpay **test mode** for the client demo; live after KYC | docs: admin repo `docs/SETUP_RAZORPAY.md` |

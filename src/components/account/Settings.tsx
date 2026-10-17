@@ -138,6 +138,7 @@ export default function Settings({ info, focusPassword, notice }: { info: Accoun
               Email
             </label>
             <input id="email" type="email" className="field" value={profile.email} onChange={(e) => setProfile({ ...profile, email: e.target.value })} />
+            <p className="mt-1 text-xs text-ink/50">You can also sign in with this email.</p>
           </div>
           <p className="text-sm text-ink/60">Mobile: {a.mobile}</p>
           <button className="btn-primary" disabled={pState.busy}>
