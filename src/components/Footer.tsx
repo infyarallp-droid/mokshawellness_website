@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import type { Blocks } from '@/content/defaults';
 import { site, type NavItem } from '@/content/site';
-import { whatsappHref } from '@/lib/content';
+import { formatWhatsApp, whatsappHref } from '@/lib/content';
 import Logo from './Logo';
 
 export default function Footer({
@@ -70,7 +70,7 @@ export default function Footer({
             {wa && (
               <li>
                 <a href={wa} target="_blank" rel="noopener noreferrer" className="transition hover:text-white">
-                  WhatsApp us
+                  WhatsApp: {formatWhatsApp(settings.whatsapp)}
                 </a>
               </li>
             )}

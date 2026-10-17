@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import EnquiryForm from '@/components/EnquiryForm';
 import { Faq, PageHero } from '@/components/ui';
-import { getSite, whatsappHref } from '@/lib/content';
+import { formatWhatsApp, getSite, whatsappHref } from '@/lib/content';
 
 export const metadata: Metadata = {
   title: 'Contact & Enquiries',
@@ -19,7 +19,7 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
   const wa = whatsappHref(contact.whatsapp);
   const details = [
     contact.phone && { label: 'Call', value: contact.phone, href: `tel:${contact.phone.replace(/[^\d+]/g, '')}` },
-    wa && { label: 'WhatsApp', value: 'Message us on WhatsApp', href: wa },
+    wa && { label: 'WhatsApp', value: formatWhatsApp(contact.whatsapp), href: wa },
     contact.email && { label: 'Email', value: contact.email, href: `mailto:${contact.email}` },
   ].filter(Boolean) as { label: string; value: string; href: string }[];
   const faqs = s.faqs('CONTACT');

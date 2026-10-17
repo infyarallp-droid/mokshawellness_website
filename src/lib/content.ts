@@ -195,5 +195,13 @@ export function whatsappHref(number: string, message = 'Hello Moksha Wellness, I
   return digits ? `https://wa.me/${digits}?text=${encodeURIComponent(message)}` : null;
 }
 
-export const rupees = (paise: string | number) =>
+/** WhatsApp number for display, e.g. "919392842740" → "+91 93928 42740". */
+export function formatWhatsApp(number: string): string {
+  const digits = number.replace(/\D/g, '');
+  if (digits.length === 12 && digits.startsWith('91')) return `+91 ${digits.slice(2, 7)} ${digits.slice(7)}`;
+  if (digits.length === 10) return `+91 ${digits.slice(0, 5)} ${digits.slice(5)}`;
+  return digits ? `+${digits}` : '';
+}
+
+export const rupees =(paise: string | number) =>
   `₹${(Number(paise) / 100).toLocaleString('en-IN', { maximumFractionDigits: Number(paise) % 100 ? 2 : 0 })}`;
