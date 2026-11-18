@@ -1,0 +1,47 @@
+# Checks every pull request and every push to main: lint, typecheck, production build.
+# Vercel deploys on its own; this workflow shows a ✓ or ✗ on each change.
+# To stop a ✗ from reaching production, protect `main` in GitHub (Settings → Branches →
+# require the "Lint, typecheck, build" check) and merge through pull requests.
+#
+# Not run here: the Playwright browser journeys (e2e/). They need the admin API, admin panel and a
+# staff login running alongside the site — see docs/TESTING.md.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# A newer push to the same branch cancels the run still in progress.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: Lint, typecheck, build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      NEXT_TELEMETRY_DISABLED: 1
+    steps:
+      - uses: actions/checkout@v7
+      # Installs the pnpm version named in package.json ("packageManager").
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      # next-env.d.ts and the route types are generated, not committed; typecheck needs them.
+      - name: Generate Next.js types
+        run: pnpm exec next typegen
+      - run: pnpm typecheck
+      # No ADMIN_API_URL here: pages build from the built-in copy (src/content/defaults.ts),
+      # the same fallback the live site uses when the API is unreachable.
+      - run: pnpm build
